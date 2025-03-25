@@ -29,9 +29,9 @@ export async function PUT(
       );
     }
     return NextResponse.json(post);
-  } catch () {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to update post' },
+      { error: error || 'Failed to update post' },
       { status: 500 }
     );
   }

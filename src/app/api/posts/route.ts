@@ -11,9 +11,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const post = createPost(body);
     return NextResponse.json(post, { status: 201 });
-  } catch () {
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to create post' },
+      { error: error || 'Failed to create post' },
       { status: 500 }
     );
   }
