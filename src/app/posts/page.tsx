@@ -19,6 +19,21 @@ export default function PostsList() {
   const modalRef = useRef<HTMLDivElement>(null);
   const postsPerPage = 5;
 
+  const navigatePreview = (direction: 'prev' | 'next') => {
+    if (!previewPost) return;
+
+    const currentIndex = sortedPosts.findIndex(post => post.id === previewPost.id);
+    let newIndex: number;
+
+    if (direction === 'prev') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : sortedPosts.length - 1;
+    } else {
+      newIndex = currentIndex < sortedPosts.length - 1 ? currentIndex + 1 : 0;
+    }
+
+    openPreview(sortedPosts[newIndex]);
+  };
+
   // 键盘事件处理
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!previewPost) return;
@@ -34,7 +49,7 @@ export default function PostsList() {
         navigatePreview('next');
         break;
     }
-  }, [previewPost]);
+  }, [previewPost, navigatePreview]);
 
   // 点击外部关闭预览
   const handleClickOutside = useCallback((e: MouseEvent) => {
@@ -121,21 +136,6 @@ export default function PostsList() {
   const closePreview = () => {
     setIsPreviewVisible(false);
     setTimeout(() => setPreviewPost(null), 300); // 等待动画完成
-  };
-
-  const navigatePreview = (direction: 'prev' | 'next') => {
-    if (!previewPost) return;
-
-    const currentIndex = sortedPosts.findIndex(post => post.id === previewPost.id);
-    let newIndex: number;
-
-    if (direction === 'prev') {
-      newIndex = currentIndex > 0 ? currentIndex - 1 : sortedPosts.length - 1;
-    } else {
-      newIndex = currentIndex < sortedPosts.length - 1 ? currentIndex + 1 : 0;
-    }
-
-    openPreview(sortedPosts[newIndex]);
   };
 
   const handlePreviewClick = (e: React.MouseEvent, post: BlogPost) => {
