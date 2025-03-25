@@ -158,12 +158,12 @@ export default function PostsList() {
               setSearchQuery(e.target.value);
               setCurrentPage(1); // 重置页码
             }}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input flex-1"
           />
           <select
             value={sortOption}
             onChange={handleSortChange}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input"
           >
             <option value="date-desc">Newest First</option>
             <option value="date-asc">Oldest First</option>
@@ -182,8 +182,8 @@ export default function PostsList() {
                 onClick={() => toggleTag(tag)}
                 className={`px-3 py-1 rounded-full text-sm transition-colors ${
                   selectedTags.includes(tag)
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'tag-selected'
+                    : 'tag-unselected'
                 }`}
               >
                 {tag}
@@ -197,7 +197,7 @@ export default function PostsList() {
           {paginatedPosts.map((post) => (
             <article
               key={post.id}
-              className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              className="card"
             >
               <div className="flex justify-between items-start">
                 <Link 
@@ -228,7 +228,7 @@ export default function PostsList() {
                   {post.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-1 bg-gray-100 rounded-full text-xs"
+                      className="tag"
                     >
                       {tag}
                     </span>
@@ -245,7 +245,7 @@ export default function PostsList() {
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="pagination-button"
             >
               Previous
             </button>
@@ -255,7 +255,7 @@ export default function PostsList() {
             <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="pagination-button"
             >
               Next
             </button>
@@ -272,7 +272,7 @@ export default function PostsList() {
         {/* 预览模态框 */}
         {previewPost && (
           <div 
-            className={`fixed inset-0 bg-black transition-opacity duration-300 flex items-center justify-center p-4 z-50 ${
+            className={`modal-overlay ${
               isPreviewVisible ? 'bg-opacity-50' : 'bg-opacity-0'
             }`}
             role="dialog"
@@ -281,7 +281,7 @@ export default function PostsList() {
           >
             <div 
               ref={modalRef}
-              className={`bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 ${
+              className={`modal-content ${
                 isPreviewVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
               }`}
             >
@@ -310,7 +310,7 @@ export default function PostsList() {
                   {previewPost.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-3 py-1 bg-gray-100 rounded-full text-sm"
+                      className="tag"
                     >
                       {tag}
                     </span>
@@ -335,7 +335,7 @@ export default function PostsList() {
                   </div>
                   <Link
                     href={`/posts/${previewPost.slug}`}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    className="btn btn-primary"
                   >
                     Read Full Article
                   </Link>
