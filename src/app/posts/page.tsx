@@ -19,59 +19,6 @@ export default function PostsList() {
   const modalRef = useRef<HTMLDivElement>(null);
   const postsPerPage = 5;
 
-  const navigatePreview = (direction: 'prev' | 'next') => {
-    if (!previewPost) return;
-
-    const currentIndex = sortedPosts.findIndex(post => post.id === previewPost.id);
-    let newIndex: number;
-
-    if (direction === 'prev') {
-      newIndex = currentIndex > 0 ? currentIndex - 1 : sortedPosts.length - 1;
-    } else {
-      newIndex = currentIndex < sortedPosts.length - 1 ? currentIndex + 1 : 0;
-    }
-
-    openPreview(sortedPosts[newIndex]);
-  };
-
-  // 键盘事件处理
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!previewPost) return;
-
-    switch (e.key) {
-      case 'Escape':
-        closePreview();
-        break;
-      case 'ArrowLeft':
-        navigatePreview('prev');
-        break;
-      case 'ArrowRight':
-        navigatePreview('next');
-        break;
-    }
-  }, [previewPost, navigatePreview]);
-
-  // 点击外部关闭预览
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      closePreview();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (previewPost) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.addEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'unset';
-    };
-  }, [previewPost, handleKeyDown, handleClickOutside]);
-
   useEffect(() => {
     const allPosts = getPosts();
     setPosts(allPosts);
@@ -107,6 +54,74 @@ export default function PostsList() {
     }
   });
 
+  const openPreview = useCallback((post: BlogPost) => {
+    setPreviewPost(post);
+    setIsPreviewVisible(true);
+  }, []);
+
+  const closePreview = useCallback(() => {
+    setIsPreviewVisible(false);
+    setTimeout(() => setPreviewPost(null), 300); // 等待动画完成
+  }, []);
+
+  const navigatePreview = useCallback((direction: 'prev' | 'next') => {
+    if (!previewPost) return;
+
+    const currentIndex = sortedPosts.findIndex(post => post.id === previewPost.id);
+    let newIndex: number;
+
+    if (direction === 'prev') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : sortedPosts.length - 1;
+    } else {
+      newIndex = currentIndex < sortedPosts.length - 1 ? currentIndex + 1 : 0;
+    }
+
+    openPreview(sortedPosts[newIndex]);
+  }, [previewPost, sortedPosts, openPreview]);
+
+  // 键盘事件处理
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!previewPost) return;
+
+    switch (e.key) {
+      case 'Escape':
+        closePreview();
+        break;
+      case 'ArrowLeft':
+        navigatePreview('prev');
+        break;
+      case 'ArrowRight':
+        navigatePreview('next');
+        break;
+    }
+  }, [previewPost, navigatePreview, closePreview]);
+
+  // 点击外部关闭预览
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      closePreview();
+    }
+  }, [closePreview]);
+
+  const handlePreviewClick = useCallback((e: React.MouseEvent, post: BlogPost) => {
+    e.preventDefault();
+    openPreview(post);
+  }, [openPreview]);
+
+  useEffect(() => {
+    if (previewPost) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'unset';
+    };
+  }, [previewPost, handleKeyDown, handleClickOutside]);
+
   // 分页功能
   const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
   const paginatedPosts = sortedPosts.slice(
@@ -126,21 +141,6 @@ export default function PostsList() {
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortOption(e.target.value as SortOption);
     setCurrentPage(1); // 重置页码
-  };
-
-  const openPreview = (post: BlogPost) => {
-    setPreviewPost(post);
-    setIsPreviewVisible(true);
-  };
-
-  const closePreview = () => {
-    setIsPreviewVisible(false);
-    setTimeout(() => setPreviewPost(null), 300); // 等待动画完成
-  };
-
-  const handlePreviewClick = (e: React.MouseEvent, post: BlogPost) => {
-    e.preventDefault();
-    openPreview(post);
   };
 
   return (
@@ -210,7 +210,7 @@ export default function PostsList() {
                   </h2>
                 </Link>
                 <button
-                  onClick={() => handlePreviewClick(new Event('click') as any, post)}
+                  onClick={(e) => handlePreviewClick(e, post)}
                   className="ml-4 px-3 py-1 text-sm text-blue-600 hover:text-blue-800"
                   aria-label={`Preview ${post.title}`}
                 >

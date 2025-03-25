@@ -29,7 +29,7 @@ export async function PUT(
       );
     }
     return NextResponse.json(post);
-  } catch (error) {
+  } catch () {
     return NextResponse.json(
       { error: 'Failed to update post' },
       { status: 500 }
